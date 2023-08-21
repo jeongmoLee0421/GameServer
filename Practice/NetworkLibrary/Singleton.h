@@ -46,14 +46,30 @@ instnace를 소멸시키기 위해서는 결국 자식 class의 입장이 되어
 */\
 void ReleaseInstance() override; \
 \
+/*
+	외부에서 단일체 객체 생성/소멸을 막기위해
+	생성자/소멸자를 private으로 가려두었다.
+	생성자/소멸자에서 초기화/마무리 작업이 불가능하기 때문에
+	초기화 및 마무리 작업을 할 함수를 만들었고
+	class 생성과 소멸 단계에서 각각 불릴 것임
+	선언만 해두고 정의는 하지 않았기 때문에
+	정의하지 않으면 링크 단계에서
+	정의된 함수가 없어서 함수 호출 구문에
+	주소를 매핑하지 못한다고 에러가 발생하게 된다.
+	반드시 정의하자
+*/\
+void Initialize();\
+\
+void Finalize();\
+\
 private:\
 	/*
 	Singleton 객체는 오직 하나만 존재해야 하기 때문에
 	외부에서 객체를 함부로 생성하거나 소멸하는 행위를 막아야 한다.
 	그래서 생성자/소멸자를 private으로 선언해서 외부에서 호출을 불가능하게 했다.
 	*/\
-	className() {} \
-	~className() {}\
+	className() { Initialize(); } \
+	~className() { Finalize(); }\
 	\
 private:\
 	/*
@@ -118,7 +134,7 @@ public:
 	// 가상 함수 테이블을 사용한 다형성을 통해서
 	// 자식 class에서 재정의한 ReleaseInstance()가 호출되고
 	// 자식 class 멤버 변수인 mInstance를 delete한다.
-	virtual void ReleaseInstance() = 0;
+	virtual void ReleaseInstance() = 0;	
 
 	// 프로세스가 마무리되는 단계에서
 	// 모든 singleton 객체를 소멸시켜야 하는데
