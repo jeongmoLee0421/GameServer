@@ -50,19 +50,28 @@ bool Thread::CreateThread(DWORD waitTick)
 {
 	unsigned int threadID{ 0 };
 
+	//mThread = reinterpret_cast<HANDLE>(_beginthreadex(
+	//	NULL,
+	//	0,
+	//	CallTickThread,
+	//	this, // this 포인터를 넘겨서 멤버 함수를 호출해준다.
+	//	CREATE_SUSPENDED, // 이후에 내가 원하는 타이밍에 thread 진행 가능
+	//	&threadID
+	//));
+
 	mThread = reinterpret_cast<HANDLE>(_beginthreadex(
 		NULL,
 		0,
 		CallTickThread,
 		this, // this 포인터를 넘겨서 멤버 함수를 호출해준다.
-		CREATE_SUSPENDED, // 이후에 내가 원하는 타이밍에 thread 진행 가능
+		0, // ResumeThread()에 문제가 많아서 사용x
 		&threadID
 	));
 
 	if (NULL == mThread)
 	{
-		LOG(LOG_ERROR_NORMAL,
-			"SYSTEM | Thread::CreateThread() | TickThread 생성 실패: Error(%lu)",
+		LOG(eLogInfoType::LOG_ERROR_NORMAL,
+			L"SYSTEM | Thread::CreateThread() | TickThread 생성 실패: Error(%lu)",
 			GetLastError());
 
 		return false;
@@ -93,7 +102,7 @@ void Thread::Run()
 	if (false == mIsRunning)
 	{
 		mIsRunning = true;
-		ResumeThread(mThread);
+		//ResumeThread(mThread);
 	}
 }
 
@@ -118,7 +127,7 @@ void Thread::Stop()
 	if (true == mIsRunning)
 	{
 		mIsRunning = false;
-		SuspendThread(mThread);
+		//SuspendThread(mThread);
 	}
 }
 
